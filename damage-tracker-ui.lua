@@ -12,7 +12,7 @@ function damageTrackerUI.setup(vp_width, vp_height)
 end
 
 function damageTrackerUI.drawTracker()
-  -- TODO
+  -- Will be called inside ShroudOnGUI() function in damage-tracker.lua. Otherwise, will crash the mod
 end
 
 function damageTrackerUI.writeDamage(player, damage)
