@@ -3,8 +3,6 @@
   v0.1
 ]]--
 
--- local DamageTrackerUI = require("damage-tracker-ui")
-
 function ShroudOnStart()
   charName = ""
   partyMembers = {}
@@ -34,21 +32,17 @@ end
 
 function ShroudOnConsoleInput(type, player, message)
   -- Console log input example: CharacterName attacks Target and hits, dealing 10 points of damage from Thrust
+
     if type == "CombatSelf" then
       local damageMessage = string.match(message, "dealing %d points? of damage")
       local damage = tonumber(string.match(damageMessage, "%s%d+%s"))
       registerDamageThisSecond(charName, damage)
-    -- elseif type == "CombatParty" then
-    --   local damageDealer = string.match(message, "(.+)%sattacks")
-    --   local damageMessage = string.match(message, "dealing %d points? of damage")
-    --   local damage = tonumber(string.match(damageMessage, "%s%d+%s"))
     end
 end
 
 -- BUSINESS METHODS
 
 function periodicRegisterDamage()
-  local debuggingString = ""
 
   if tableLength(damageDoneThisSecond) == 0 then
     return
@@ -66,7 +60,6 @@ function periodicRegisterDamage()
 
     table.insert(damageDone[name], 1, damage) -- we add the damage always on the start of the table, so we will always pop the most oldest value
     damageDoneThisSecond[name] = 0;
-    -- table.remove(damageDoneThisSecond, name)  -- remove the damage done this second
   end
 end
 
@@ -80,7 +73,6 @@ end
 
 -- UTIL METHODS
 
--- Register `damage` done by character with `name` in this second
 function registerDamageThisSecond(name, damage)
   if not damageDoneThisSecond[name] then
     damageDoneThisSecond[name] = damage
