@@ -64,10 +64,10 @@ function periodicRegisterDamage()
     damageDoneThisSecond[name] = 0;
   end
 
-  ConsoleLog(GetDamagePerSecond(charName))
+  ConsoleLog(getDamagePerSecond(charName))
 end
 
-function GetDamagePerSecond(name)
+function getDamagePerSecond(name)
   local totalDamage = 0
   local damageSize = tableLength(damageDone[name])
   for i, damage in pairs(damageDone[name]) do
@@ -82,8 +82,6 @@ function GetDamagePerSecond(name)
 
 end
 
--- UTIL METHODS
-
 function registerDamageThisSecond(name, damage)
   if not damageDoneThisSecond[name] then
     damageDoneThisSecond[name] = damage
@@ -91,6 +89,8 @@ function registerDamageThisSecond(name, damage)
     damageDoneThisSecond[name] = damageDoneThisSecond[name] + damage
   end
 end
+
+-- UTIL METHODS
 
 function tableLength(t)
   local count = 0
