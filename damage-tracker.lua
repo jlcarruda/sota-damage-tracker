@@ -3,12 +3,13 @@
   v0.1
 ]]--
 
-local TrackerUI = require("damage-tracker-ui")
+-- local DamageTrackerUI = require("damage-tracker-ui")
 
 function ShroudOnStart()
   charName = ""
-  charDamage = {}
   partyMembers = {}
+  damageDone = {}
+  startTime = os.time()
 end
 
 function ShroudOnUpdate()
@@ -30,4 +31,24 @@ function ShroudOnGUI()
 end
 
 function ShroudOnConsoleInput(type, player, message)
+  -- Console log input example: CharacterName attacks Target and hits, dealing 10 points of damage from Thrust
+    if type == "CombatSelf" then
+      local damageMessage = string.match(message, "dealing %d points? of damage")
+      local damage = tonumber(string.match(damageMessage, "%s%d+%s"))
+      registerDamage(charName, damage)
+      ConsoleLog(damageDone[charName])
+    elseif type == "CombatParty" then
+      local damageDealer = string.match(message, "(.+)%sattacks")
+      local damageMessage = string.match(message, "dealing %d points? of damage")
+      local damage = tonumber(string.match(damageMessage, "%s%d+%s"))
+    end
+
+end
+
+function registerDamage(name, damage)
+  if not damageDone[name] then
+    damageDone[name] = damage
+  else
+    damageDone[name] = damageDone[name] + damage
+  end
 end
