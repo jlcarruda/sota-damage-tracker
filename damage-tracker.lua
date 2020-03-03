@@ -35,8 +35,10 @@ function ShroudOnConsoleInput(type, player, message)
 
     if type == "CombatSelf" then
       local damageMessage = string.match(message, "dealing %d points? of damage")
-      local damage = tonumber(string.match(damageMessage, "%s%d+%s"))
-      registerDamageThisSecond(charName, damage)
+      if damageMessage then
+        local damage = tonumber(string.match(damageMessage, "%s%d+%s"))
+        registerDamageThisSecond(charName, damage)
+      end
     end
 end
 
@@ -58,17 +60,26 @@ function periodicRegisterDamage()
     end
 
 
-    table.insert(damageDone[name], 1, damage) -- we add the damage always on the start of the table, so we will always pop the most oldest value
+    table.insert(damageDone[name], 1, damage) -- add the damage always on the start of the table, so it will always pop the most oldest value
     damageDoneThisSecond[name] = 0;
   end
+
+  ConsoleLog(GetDamagePerSecond(charName))
 end
 
 function GetDamagePerSecond(name)
   local totalDamage = 0
+  local damageSize = tableLength(damageDone[name])
   for i, damage in pairs(damageDone[name]) do
     totalDamage = totalDamage + damage
   end
-  return totalDamage
+
+  if damageSize > 0 then
+    return totalDamage / damageSize
+  else
+    return 0
+  end
+
 end
 
 -- UTIL METHODS
