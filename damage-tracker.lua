@@ -9,7 +9,9 @@ function ShroudOnStart()
   charName = ""
   partyMembers = {}
   damageDone = {}
-  startTime = os.time()
+  damageDoneThisSecond = {}
+  secondsThreshold = 5
+  ShroudRegisterPeriodic("periodic_register_damage", "periodicRegisterDamage", 1.0, true)
 end
 
 function ShroudOnUpdate()
@@ -35,20 +37,60 @@ function ShroudOnConsoleInput(type, player, message)
     if type == "CombatSelf" then
       local damageMessage = string.match(message, "dealing %d points? of damage")
       local damage = tonumber(string.match(damageMessage, "%s%d+%s"))
-      registerDamage(charName, damage)
-      ConsoleLog(damageDone[charName])
-    elseif type == "CombatParty" then
-      local damageDealer = string.match(message, "(.+)%sattacks")
-      local damageMessage = string.match(message, "dealing %d points? of damage")
-      local damage = tonumber(string.match(damageMessage, "%s%d+%s"))
+      registerDamageThisSecond(charName, damage)
+    -- elseif type == "CombatParty" then
+    --   local damageDealer = string.match(message, "(.+)%sattacks")
+    --   local damageMessage = string.match(message, "dealing %d points? of damage")
+    --   local damage = tonumber(string.match(damageMessage, "%s%d+%s"))
     end
-
 end
 
-function registerDamage(name, damage)
-  if not damageDone[name] then
-    damageDone[name] = damage
-  else
-    damageDone[name] = damageDone[name] + damage
+-- BUSINESS METHODS
+
+function periodicRegisterDamage()
+  local debuggingString = ""
+
+  if tableLength(damageDoneThisSecond) == 0 then
+    return
   end
+
+  for name, damage in pairs(damageDoneThisSecond) do
+    if not damageDone[name] then
+      damageDone[name] = {}
+    end
+
+    if tableLength(damageDone[name]) == secondsThreshold then
+      table.remove(damageDone[name]) -- removes the last element, because its the oldest
+    end
+
+
+    table.insert(damageDone[name], 1, damage) -- we add the damage always on the start of the table, so we will always pop the most oldest value
+    damageDoneThisSecond[name] = 0;
+    -- table.remove(damageDoneThisSecond, name)  -- remove the damage done this second
+  end
+end
+
+function GetDamagePerSecond(name)
+  local totalDamage = 0
+  for i, damage in pairs(damageDone[name]) do
+    totalDamage = totalDamage + damage
+  end
+  return totalDamage
+end
+
+-- UTIL METHODS
+
+-- Register `damage` done by character with `name` in this second
+function registerDamageThisSecond(name, damage)
+  if not damageDoneThisSecond[name] then
+    damageDoneThisSecond[name] = damage
+  else
+    damageDoneThisSecond[name] = damageDoneThisSecond[name] + damage
+  end
+end
+
+function tableLength(t)
+  local count = 0
+  for _ in pairs(t) do count = count + 1 end
+  return count
 end
