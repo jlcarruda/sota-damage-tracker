@@ -34,9 +34,11 @@ function ShroudOnConsoleInput(type, player, message)
   -- Console log input example: CharacterName attacks Target and hits, dealing 10 points of damage from Thrust
 
     if type == "CombatSelf" then
-      local damageMessage = string.match(message, "dealing %d points? of damage")
+      local damageMessage = string.match(message, "dealing %d points? of")
       if damageMessage then
         local damage = tonumber(string.match(damageMessage, "%s%d+%s"))
+        local isCritical = string.match(damageMessage, "of critical damage")
+
         registerDamageThisSecond(charName, damage)
       end
     end
@@ -64,7 +66,7 @@ function periodicRegisterDamage()
     damageDoneThisSecond[name] = 0;
   end
 
-  ConsoleLog(getDamagePerSecond(charName))
+  ConsoleLog("DPS: " .. getDamagePerSecond(charName))
 end
 
 function getDamagePerSecond(name)
