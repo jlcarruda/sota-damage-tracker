@@ -10,6 +10,9 @@ function ShroudOnStart()
   damageDoneThisSecond = {}
   secondsThreshold = 5
   ShroudRegisterPeriodic("periodic_register_damage", "periodicRegisterDamage", 1.0, true)
+
+  bgTexture = ShroudLoadTexture("damage-tracker/textures/bg.png")
+  borderTexture = ShroudLoadTexture("damage-tracker/textures/border.png")
 end
 
 function ShroudOnUpdate()
@@ -18,6 +21,20 @@ function ShroudOnUpdate()
 end
 
 function ShroudOnGUI()
+  local width = 200
+  local height = 100
+  local border = 2
+  local x = (ShroudGetScreenX() / 2) - (width * .5)
+  local y = (ShroudGetScreenY() / 2) + (width * .6)
+
+  -- Draw bg
+  ShroudDrawTexture(x, y, width, height, bgTexture)
+
+  -- Draw borders
+  ShroudDrawTexture(x, y, border, height, borderTexture)
+  ShroudDrawTexture(x + width, y, border, height, borderTexture)
+  ShroudDrawTexture(x, y, width, border, borderTexture)
+  ShroudDrawTexture(x, y + height, width + border, border, borderTexture)
   --[[
     What it needs?
     - Draw the UI box for the tracker
