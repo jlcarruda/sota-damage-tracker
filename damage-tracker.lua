@@ -10,31 +10,32 @@ function ShroudOnStart()
   damageDoneThisSecond = {}
   secondsThreshold = 5
   ShroudRegisterPeriodic("periodic_register_damage", "periodicRegisterDamage", 1.0, true)
+  x0 = 0
+  y0 = 0
+  x = 0
+  y = 0
+  initialize = false
+  movable = false
 
-  bgTexture = ShroudLoadTexture("damage-tracker/textures/bg.png")
-  borderTexture = ShroudLoadTexture("damage-tracker/textures/border.png")
+  loadAssets()
 end
 
 function ShroudOnUpdate()
   charName = ShroudGetPlayerName()
   partyMembers = ShroudGetPartyMemberNamesInScene()
+  if not ShroudServerTime then
+    initialize = false
+    return
+  end
+
+  initialize = true
+
 end
 
 function ShroudOnGUI()
-  local width = 200
-  local height = 100
-  local border = 2
-  local x = (ShroudGetScreenX() / 2) - (width * .5)
-  local y = (ShroudGetScreenY() / 2) + (width * .6)
-
-  -- Draw bg
-  ShroudDrawTexture(x, y, width, height, bgTexture)
-
-  -- Draw borders
-  ShroudDrawTexture(x, y, border, height, borderTexture)
-  ShroudDrawTexture(x + width, y, border, height, borderTexture)
-  ShroudDrawTexture(x, y, width, border, borderTexture)
-  ShroudDrawTexture(x, y + height, width + border, border, borderTexture)
+  if initialize then
+    drawWindow()
+  end
   --[[
     What it needs?
     - Draw the UI box for the tracker
@@ -61,8 +62,9 @@ function ShroudOnConsoleInput(type, player, message)
     end
 end
 
--- BUSINESS METHODS
+-- ========================== BUSINESS METHODS =========================
 
+-- Periodic function to calculate damage per second for all characters
 function periodicRegisterDamage()
 
   if tableLength(damageDoneThisSecond) == 0 then
@@ -86,6 +88,7 @@ function periodicRegisterDamage()
   ConsoleLog("DPS: " .. getDamagePerSecond(charName))
 end
 
+-- Get damage sum for a character, in the actual second, from the damage table
 function getDamagePerSecond(name)
   local totalDamage = 0
   local damageSize = tableLength(damageDone[name])
@@ -101,6 +104,7 @@ function getDamagePerSecond(name)
 
 end
 
+-- Register the damage sum to a character in the damage table
 function registerDamageThisSecond(name, damage)
   if not damageDoneThisSecond[name] then
     damageDoneThisSecond[name] = damage
@@ -109,7 +113,55 @@ function registerDamageThisSecond(name, damage)
   end
 end
 
--- UTIL METHODS
+
+-- ==================== UI METHODS =========================
+
+function drawWindow()
+  local width = 200
+  local height = 100
+  local border = 2
+  if movable then
+    x = ShroudMouseX
+    y = ShroudMouseY
+  else
+    x = x0
+    y = y0
+  end
+
+  -- Draw bg
+  ShroudDrawTexture(x, y, width, height, bgTexture)
+
+  -- Draw borders
+  ShroudDrawTexture(x, y, border, height, borderTexture)
+  ShroudDrawTexture(x + width, y, border, height, borderTexture)
+  ShroudDrawTexture(x, y, width, border, borderTexture)
+  ShroudDrawTexture(x, y + height, width + border, border, borderTexture)
+
+  drawMoveButton()
+  -- drawDamage()
+end
+
+function drawMoveButton()
+  if movable then
+    if ShroudButton(x - 2, y - 2, 24, 24, buttonTexture, ">") then
+      x0 = ShroudMouseX
+      y0 = ShroudMouseY
+      movable = false
+    end
+  else
+    if ShroudButton(x - 2, y - 2, 24, 24, buttonTexture, ">") then
+      movable = true
+    end
+  end
+end
+
+function loadAssets()
+  bgTexture = ShroudLoadTexture("damage-tracker/textures/bg.png")
+  borderTexture = ShroudLoadTexture("damage-tracker/textures/border.png")
+  buttonTexture = ShroudLoadTexture("damage-tracker/textures/button.png")
+end
+
+-- ==================== UTIL METHODS =========================
 
 function tableLength(t)
   local count = 0
