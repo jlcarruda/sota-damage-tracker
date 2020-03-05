@@ -4,11 +4,13 @@
 ]]--
 
 function ShroudOnStart()
+  configPath = ShroudLuaPath .. "/damage-tracker/damage-tracker-config"
+
   charName = ""
   partyMembers = {}
   damageDone = {}
   damageDoneThisSecond = {}
-  secondsThreshold = 10
+  secondsThreshold = 5
   maxAnalyticsToShow = 5
   x0 = 0
   y0 = 0
@@ -18,6 +20,10 @@ function ShroudOnStart()
   screenH = 0
   width = 200
   height = 100
+
+  for k,v in pairs(getConfigs()) do
+    ConsoleLog('line[' .. k .. '] ' .. v)
+  end
 
   ShroudRegisterPeriodic("periodic_register_damage", "periodicRegisterDamage", 1.0, true)
 
@@ -207,10 +213,55 @@ function eventOnHideButton()
   end
 end
 
+
 -- ==================== UTIL METHODS =========================
+
+function fileExists(file)
+  local f = io.open(file, "rb")
+  if f then f:close() end
+  return f ~= nil
+end
+
+function getConfigs()
+  if not fileExists(configPath) then return {} end
+  index = 0
+  lines = {}
+  for line in io.lines(configPath) do
+    local splitted = string.split(line, "=")
+    lines[splitted[1]] = splitted[2]
+  end
+  return lines
+end
 
 function tableLength(t)
   local count = 0
   for _ in pairs(t) do count = count + 1 end
   return count
+end
+
+
+-- Python Split String like function, made by JoanOrdinas
+function string:split(sSeparator, bRegexp, nMax)
+  assert(sSeparator ~= '')
+  assert(nMax == nil or nMax >= 1)
+
+  local aRecord = {}
+
+  if self:len() > 0 then
+     local bPlain = not bRegexp
+     nMax = nMax or -1
+
+     local nField, nStart = 1, 1
+     local nFirst,nLast = self:find(sSeparator, nStart, bPlain)
+     while nFirst and nMax ~= 0 do
+        aRecord[nField] = self:sub(nStart, nFirst-1)
+        nField = nField+1
+        nStart = nLast+1
+        nFirst,nLast = self:find(sSeparator, nStart, bPlain)
+        nMax = nMax-1
+     end
+     aRecord[nField] = self:sub(nStart)
+  end
+
+  return aRecord
 end
