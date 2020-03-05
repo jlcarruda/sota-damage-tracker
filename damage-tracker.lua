@@ -19,6 +19,7 @@ function ShroudOnStart()
   y0 = tonumber(configs.y)
   width = tonumber(configs.width)
   height = tonumber(configs.height)
+  defaultTextColor = configs.textColor
   screenW = 0
   screenH = 0
 
@@ -190,8 +191,7 @@ function drawDamage()
   local count = 0
   local offsetX = 10
   local offsetY = 20
-  local defaultColor = "#fff"
-  local textColor = defaultColor
+  local textColor = defaultTextColor
 
   for character in pairs(damageDone) do
     if count == maxAnalyticsToShow then return end
