@@ -96,9 +96,13 @@ function periodicRegisterDamage()
       table.remove(damageDone[name]) -- removes the last element, because its the oldest
     end
 
+    if damage == 0 then
+      table.remove(damageDone[name])
+    else
+      table.insert(damageDone[name], 1, damage) -- add the damage always on the start of the table, so it will always pop the most oldest value
+      damageDoneThisSecond[name] = 0;
+    end
 
-    table.insert(damageDone[name], 1, damage) -- add the damage always on the start of the table, so it will always pop the most oldest value
-    damageDoneThisSecond[name] = 0;
   end
 end
 
