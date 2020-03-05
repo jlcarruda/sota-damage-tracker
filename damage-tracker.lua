@@ -1,6 +1,9 @@
 --[[
   Sota Damage Tracker
-  v0.1
+  v0.5
+
+  Damage tracking mod for Player Character
+  (Party damage will be coming soon ...)
 ]]--
 
 function ShroudOnStart()
@@ -45,7 +48,6 @@ function ShroudOnUpdate()
 
   initialize = true
   eventOnHideButton()
-
 end
 
 function ShroudOnGUI()
@@ -55,31 +57,18 @@ function ShroudOnGUI()
     drawHideButton()
     drawDamage()
   end
-
-  --[[
-    What it needs?
-    - Draw the UI box for the tracker
-    - Per second, needs to do
-      - Get damage from console and store in each character name table value (probably it will be another table)
-      - Push damage to value table with damage as key and time as value
-      - Pop damage from the value table which has timestamp older than threshold
-      - Sum the damage value in the table
-      - Display damage sum in the window, associated with the character name
-  ]]--
 end
 
 function ShroudOnConsoleInput(type, player, message)
-  -- Console log input example: CharacterName attacks Target and hits, dealing 10 points of damage from Thrust
+  if type == "CombatSelf" then
+    local damageMessage = string.match(message, "dealing %d points? of")
+    if damageMessage then
+      local damage = tonumber(string.match(damageMessage, "%s%d+%s"))
+      local isCritical = string.match(damageMessage, "of critical damage")
 
-    if type == "CombatSelf" then
-      local damageMessage = string.match(message, "dealing %d points? of")
-      if damageMessage then
-        local damage = tonumber(string.match(damageMessage, "%s%d+%s"))
-        local isCritical = string.match(damageMessage, "of critical damage")
-
-        registerDamageThisSecond(charName, damage)
-      end
+      registerDamageThisSecond(charName, damage)
     end
+  end
 end
 
 -- ========================== BUSINESS METHODS =========================
@@ -106,7 +95,6 @@ function periodicRegisterDamage()
       table.insert(damageDone[name], 1, damage) -- add the damage always on the start of the table, so it will always pop the most oldest value
       damageDoneThisSecond[name] = 0;
     end
-
   end
 end
 
@@ -246,7 +234,6 @@ function tableLength(t)
   for _ in pairs(t) do count = count + 1 end
   return count
 end
-
 
 -- Python Split String like function, made by JoanOrdinas
 function string:split(sSeparator, bRegexp, nMax)
