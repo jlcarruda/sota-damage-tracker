@@ -21,8 +21,10 @@ function ShroudOnStart()
 
   ShroudRegisterPeriodic("periodic_register_damage", "periodicRegisterDamage", 1.0, true)
 
+  hideButtonLock = false
   initialize = false
   movable = false
+  isVisible = true
 
   loadAssets()
 end
@@ -38,15 +40,18 @@ function ShroudOnUpdate()
   end
 
   initialize = true
+  eventOnHideButton()
 
 end
 
 function ShroudOnGUI()
-  if initialize then
+  if initialize and isVisible then
     drawWindow()
     drawMoveButton()
+    drawHideButton()
     drawDamage()
   end
+
   --[[
     What it needs?
     - Draw the UI box for the tracker
@@ -122,7 +127,6 @@ function registerDamageThisSecond(name, damage)
   end
 end
 
-
 -- ==================== UI METHODS =========================
 
 function drawWindow()
@@ -147,15 +151,21 @@ end
 
 function drawMoveButton()
   if movable then
-    if ShroudButton(x - 2, y - 2, 24, 24, buttonTexture, "> Move") then
+    if ShroudButton(x - 2, y - 2, 25, 15, buttonTexture, "< >") then
       x0 = ShroudMouseX
       y0 = ShroudMouseY
       movable = false
     end
   else
-    if ShroudButton(x - 2, y - 2, 24, 24, buttonTexture, ">") then
+    if ShroudButton(x - 2, y - 2, 25, 15, buttonTexture, "< >") then
       movable = true
     end
+  end
+end
+
+function drawHideButton()
+  if ShroudButton(x + 25, y - 2, 25, 15, buttonTexture, "-") then
+    isVisible = not isVisible
   end
 end
 
@@ -179,6 +189,17 @@ function drawDamage()
     if charName == character then textColor = "#00ff00" end
     ShroudGUILabel(x + offsetX, y + offsetY + (5 * count), screenW - (x + width), 20, string.format("<size=11><color=%s>%s : %s/s</color></size>", textColor, character, dps))
     count = count + 1
+  end
+end
+
+function eventOnHideButton()
+  if ShroudGetOnKeyDown("F10") and not hideButtonLock then
+    isVisible = not isVisible
+    hideButtonLock = true
+  end
+
+  if ShroudGetOnKeyUp("F10") then
+    hideButtonLock = false
   end
 end
 
