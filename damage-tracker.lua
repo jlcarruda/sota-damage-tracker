@@ -17,10 +17,10 @@ function ShroudOnStart()
   y = 0
   x0 = tonumber(configs.x)
   y0 = tonumber(configs.y)
+  width = tonumber(configs.width)
+  height = tonumber(configs.height)
   screenW = 0
   screenH = 0
-  width = 200
-  height = 100
 
   ShroudRegisterPeriodic("periodic_register_damage", "periodicRegisterDamage", 1.0, true)
 
