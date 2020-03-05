@@ -5,6 +5,7 @@
 
 function ShroudOnStart()
   configPath = ShroudLuaPath .. "/damage-tracker/damage-tracker-config"
+  configs = getConfigs()
 
   charName = ""
   partyMembers = {}
@@ -12,18 +13,14 @@ function ShroudOnStart()
   damageDoneThisSecond = {}
   secondsThreshold = 5
   maxAnalyticsToShow = 5
-  x0 = 0
-  y0 = 0
   x = 0
   y = 0
+  x0 = tonumber(configs.x)
+  y0 = tonumber(configs.y)
   screenW = 0
   screenH = 0
   width = 200
   height = 100
-
-  for k,v in pairs(getConfigs()) do
-    ConsoleLog('line[' .. k .. '] ' .. v)
-  end
 
   ShroudRegisterPeriodic("periodic_register_damage", "periodicRegisterDamage", 1.0, true)
 
@@ -164,6 +161,9 @@ function drawMoveButton()
     if ShroudButton(x - 2, y - 2, 25, 15, buttonTexture, "< >") then
       x0 = ShroudMouseX
       y0 = ShroudMouseY
+      configs.x = x0
+      configs.y = y0
+      saveConfigs()
       movable = false
     end
   else
@@ -213,13 +213,21 @@ function eventOnHideButton()
   end
 end
 
-
 -- ==================== UTIL METHODS =========================
 
 function fileExists(file)
   local f = io.open(file, "rb")
   if f then f:close() end
   return f ~= nil
+end
+
+function saveConfigs()
+  local file = io.open(configPath, "w")
+  for k, v in pairs(configs) do
+    local configToSave = k .. "=" .. v .. "\n"
+    file:write(configToSave)
+  end
+  file:close()
 end
 
 function getConfigs()
